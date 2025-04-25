@@ -1,0 +1,30 @@
+name: Fork to Private Repository
+
+on:
+  push:
+    branches:
+      - main  # またはFork元のブランチに合わせて設定
+
+jobs:
+  create-private-repo:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Forked Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Git
+      run: |
+        git config --global user.name "Your Name"
+        git config --global user.email "your-email@example.com"
+
+    - name: Create a new private repository
+      run: |
+        curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -d '{"name": "new-private-repo", "private": true}' \
+        https://api.github.com/user/repos
+
+    - name: Push to the new private repository
+      run: |
+        git remote add new-origin https://github.com/${{ github.actor }}/new-private-repo.git
+        git push new-origin main
